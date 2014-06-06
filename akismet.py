@@ -352,6 +352,7 @@ class Akismet(object):
             raise APIKeyError("Your have not set an API key.")
         if data is None:
             data = {}
+        comment = self._safeStr(comment)
         if build_data:
             self._build_data(comment, data)
         url = '%ssubmit-spam' % self._getURL()
@@ -373,6 +374,7 @@ class Akismet(object):
             raise APIKeyError("Your have not set an API key.")
         if data is None:
             data = {}
+        comment = self._safeStr(comment)
         if build_data:
             self._build_data(comment, data)
         url = '%ssubmit-ham' % self._getURL()
