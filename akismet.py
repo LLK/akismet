@@ -119,6 +119,7 @@ class Akismet(object):
             agent = DEFAULTAGENT % __version__
         self.user_agent = user_agent % (agent, __version__)
         self.setAPIKey(key, blog_url)
+        self._key_verified = False
 
 
     def _getURL(self):
@@ -168,7 +169,7 @@ class Akismet(object):
             self.blog_url = blog_url
 
 
-    def verify_key(self):
+    def _verify_key(self):
         """
         This equates to the ``verify-key`` call against the akismet API.
         
@@ -193,9 +194,11 @@ class Akismet(object):
         headers = {'User-Agent' : self.user_agent}
         resp = self._safeRequest(url, urlencode(data), headers)
         if resp.lower() == 'valid':
-            return True
+            self._key_verified = True
         else:
-            return False
+            self._key_verified = False
+
+        return self._key_verified
 
     def _build_data(self, comment, data):
         """
@@ -313,6 +316,10 @@ class Akismet(object):
         """
         if self.key is None:
             raise APIKeyError("Your have not set an API key.")
+        if not self._key_verified:
+            if not self._verify_key():
+                raise APIKeyError("Could not validate API key.")
+
         if data is None:
             data = {}
         comment = self._safeStr(comment)
@@ -350,6 +357,12 @@ class Akismet(object):
         """
         if self.key is None:
             raise APIKeyError("Your have not set an API key.")
+        if self.key is None:
+            raise APIKeyError("Your have not set an API key.")
+        if not self._key_verified:
+            if not self._verify_key():
+                raise APIKeyError("Could not validate API key.")
+                
         if data is None:
             data = {}
         comment = self._safeStr(comment)
